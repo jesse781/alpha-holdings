@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Holdings | A Portfolio of Tomorrow's Icons</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --black: #0a0a0a; --white: #fafafa; --cream: #f5f2ed; --gold: #c9a962; --charcoal: #1a1a1a; --muted: #6b6b6b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--black); color: var(--white); overflow-x: hidden; }
+        body.modal-open { overflow: hidden; }
+        .cursor { width: 20px; height: 20px; border: 1px solid var(--gold); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; mix-blend-mode: difference; }
+        .cursor.hover { transform: scale(2); background: var(--gold); opacity: 0.5; }
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 2rem 4rem; display: flex; justify-content: space-between; align-items: center; mix-blend-mode: difference; }
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--white); opacity: 0; transition: opacity 0.4s ease; }
+        .logo.visible { opacity: 1; }
+        .nav-links { display: flex; gap: 3rem; list-style: none; }
+        .nav-links a { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--white); text-decoration: none; position: relative; padding-bottom: 4px; }
+        .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px; background: var(--gold); transition: width 0.3s ease; }
+        .nav-links a:hover::after { width: 100%; }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; background: linear-gradient(135deg, var(--black) 0%, var(--charcoal) 50%, var(--black) 100%); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 30%, rgba(201, 169, 98, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(201, 169, 98, 0.05) 0%, transparent 50%); pointer-events: none; }
+        .hero-content { text-align: center; z-index: 1; padding: 0 2rem; }
+        .hero-eyebrow { font-size: 0.7rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); margin-bottom: 2rem; opacity: 0; animation: fadeUp 1s ease 0.3s forwards; }
+        .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 12vw, 10rem); font-weight: 400; line-height: 0.95; margin-bottom: 2rem; opacity: 0; animation: fadeUp 1s ease 0.5s forwards; }
+        .hero-title span { display: block; font-style: italic; color: var(--gold); }
+        .hero-subtitle { font-size: 1rem; font-weight: 300; letter-spacing: 0.1em; color: var(--muted); max-width: 500px; margin: 0 auto; opacity: 0; animation: fadeUp 1s ease 0.7s forwards; }
+        .scroll-indicator { position: absolute; bottom: 4rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 1rem; opacity: 0; animation: fadeUp 1s ease 1s forwards; }
+        .scroll-indicator span { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
+        .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease infinite; }
+        @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .brands-section { padding: 8rem 0; background: var(--cream); color: var(--black); }
+        .brands-header { text-align: center; padding: 0 2rem 6rem; }
+        .brands-header h2 { font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.4em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+        .brands-header p { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 400; line-height: 1.2; max-width: 700px; margin: 0 auto; }
+        .brand-card { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.3s ease; }
+        .brand-card:hover { transform: scale(0.995); }
+        .brand-card:nth-child(even) { direction: rtl; }
+        .brand-card:nth-child(even) > * { direction: ltr; }
+        .brand-visual { position: relative; overflow: hidden; }
+        .brand-content { display: flex; flex-direction: column; justify-content: center; padding: 4rem 6rem; background: var(--white); position: relative; }
+        .brand-content::after { content: 'Click to explore →'; position: absolute; bottom: 2rem; right: 2rem; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); opacity: 0; transition: opacity 0.3s ease; }
+        .brand-card:hover .brand-content::after { opacity: 1; }
+        .brand-number { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--gold); margin-bottom: 2rem; }
+        .brand-name { font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; line-height: 1; }
+        .brand-tagline { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; color: var(--muted); margin-bottom: 2rem; }
+        .brand-description { font-size: 0.95rem; line-height: 1.8; color: var(--charcoal); margin-bottom: 2.5rem; max-width: 400px; }
+        .brand-category { display: inline-flex; align-items: center; gap: 0.75rem; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+        .brand-category::before { content: ''; width: 30px; height: 1px; background: var(--gold); }
+        .brand-stardust .brand-visual { background: linear-gradient(135deg, #e8d5e7 0%, #f5e6d3 50%, #d4e5f7 100%); }
+        .brand-lowkey .brand-visual { background: linear-gradient(135deg, #2d2d2d 0%, #4a4a4a 50%, #1a1a1a 100%); }
+        .brand-icone .brand-visual { background: linear-gradient(135deg, #f7f5f3 0%, #e8e4df 50%, #d4cfc7 100%); }
+        .brand-2fast .brand-visual { background: linear-gradient(135deg, #ff6b35 0%, #f7c59f 50%, #2ec4b6 100%); }
+        .brand-kazuaya .brand-visual { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+        .brand-offduty .brand-visual { background: linear-gradient(135deg, #e8e4df 0%, #d4cfc7 50%, #c9c4bd 100%); }
+        .brand-imbusyskin .brand-visual { background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 50%, #f48fb1 100%); }
+        .brand-toasted .brand-visual { background: linear-gradient(135deg, #a8e063 0%, #d4a574 50%, #c9a962 100%); }
+        .brand-crumb .brand-visual { background: linear-gradient(135deg, #5d4037 0%, #795548 50%, #a1887f 100%); }
+        .brand-still .brand-visual { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%); }
+        .brand-revise .brand-visual { background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%); }
+        .brand-alphavogue .brand-visual { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #c9a962 100%); }
+        .brand-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 4rem); font-weight: 800; opacity: 0.2; letter-spacing: 0.1em; white-space: nowrap; }
+        .brand-stardust .brand-icon { color: #9b59b6; } .brand-lowkey .brand-icon { color: #fff; } .brand-icone .brand-icon { color: #1a1a1a; } .brand-2fast .brand-icon { color: #fff; } .brand-kazuaya .brand-icon { color: #c9a962; } .brand-offduty .brand-icon { color: #8d8078; } .brand-imbusyskin .brand-icon { color: #fff; } .brand-toasted .brand-icon { color: #fff; } .brand-crumb .brand-icon { color: #d7ccc8; } .brand-still .brand-icon { color: #1565c0; } .brand-revise .brand-icon { color: #ffffff; } .brand-alphavogue .brand-icon { color: #c9a962; }
+        .stats-section { padding: 8rem 4rem; background: var(--black); display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; text-align: center; }
+        .stat-item { padding: 2rem; }
+        .stat-number { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 6vw, 5rem); color: var(--gold); line-height: 1; margin-bottom: 1rem; }
+        .stat-label { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+        .philosophy-section { padding: 10rem 4rem; background: var(--charcoal); text-align: center; }
+        .philosophy-content { max-width: 900px; margin: 0 auto; }
+        .philosophy-quote { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.4; margin-bottom: 3rem; }
+        .philosophy-quote span { color: var(--gold); font-style: italic; }
+        .philosophy-author { font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
+        .contact-section { padding: 8rem 4rem; background: var(--cream); color: var(--black); text-align: center; }
+        .contact-content h2 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 6vw, 4.5rem); margin-bottom: 1rem; }
+        .contact-content h2 span { font-style: italic; color: var(--gold); }
+        .contact-content p { font-size: 1rem; color: var(--muted); margin-bottom: 3rem; }
+        .contact-buttons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .contact-email { display: inline-block; font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--black); text-decoration: none; padding: 1.2rem 3rem; border: 1px solid var(--black); transition: all 0.3s ease; }
+        .contact-email:hover { background: var(--black); color: var(--white); }
+        footer { padding: 3rem 4rem; background: var(--black); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 2rem; }
+        .footer-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.3em; text-transform: uppercase; }
+        .footer-links { display: flex; gap: 2rem; }
+        .footer-links a { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.3s ease; }
+        .footer-links a:hover { color: var(--gold); }
+        .footer-copyright { font-size: 0.7rem; color: var(--muted); }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(10,10,10,0.92); z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease; display: flex; align-items: center; justify-content: center; padding: 2rem; overflow-y: auto; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal { background: var(--white); color: var(--black); max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; border-radius: 2px; position: relative; transform: scale(0.95) translateY(20px); opacity: 0; transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease; }
+        .modal-overlay.active .modal { transform: scale(1) translateY(0); opacity: 1; }
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; width: 40px; height: 40px; background: transparent; border: 1px solid var(--muted); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; z-index: 10; }
+        .modal-close:hover { background: var(--black); border-color: var(--black); }
+        .modal-close::before, .modal-close::after { content: ''; position: absolute; width: 16px; height: 1px; background: var(--black); transition: background 0.3s ease; }
+        .modal-close:hover::before, .modal-close:hover::after { background: var(--white); }
+        .modal-close::before { transform: rotate(45deg); }
+        .modal-close::after { transform: rotate(-45deg); }
+        .modal-header { padding: 3.5rem 3rem 2rem; border-bottom: 1px solid rgba(0,0,0,0.08); }
+        .modal-brand-name { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: 0.5rem; line-height: 1.1; }
+        .modal-tagline { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem; color: var(--gold); }
+        .modal-body { padding: 2.5rem 3rem; }
+        .modal-snapshot { font-family: 'Playfair Display', serif; font-size: 1.15rem; line-height: 1.6; color: var(--charcoal); margin-bottom: 2.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid rgba(0,0,0,0.08); }
+        .modal-section { margin-bottom: 2rem; }
+        .modal-section-title { font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+        .modal-section-content { font-size: 0.95rem; line-height: 1.7; color: var(--charcoal); }
+        .modal-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.08); }
+        .modal-meta-label { font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+        .modal-meta-value { color: var(--charcoal); line-height: 1.5; font-size: 0.85rem; }
+        .modal-cta { display: inline-block; font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--white); background: var(--black); padding: 1rem 2rem; margin-top: 2rem; transition: all 0.3s ease; border: 1px solid var(--black); cursor: pointer; }
+        .modal-cta:hover { background: transparent; color: var(--black); }
+        .modal-menu { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid rgba(0,0,0,0.08); }
+        .modal-menu-section { margin-bottom: 1.5rem; }
+        .modal-menu-title { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--black); margin-bottom: 0.25rem; }
+        .modal-menu-subtitle { font-size: 0.7rem; color: var(--muted); font-style: italic; margin-bottom: 0.5rem; }
+        .modal-menu-items { list-style: none; }
+        .modal-menu-items li { font-size: 0.85rem; color: var(--charcoal); padding: 0.4rem 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .modal-menu-items li:last-child { border-bottom: none; }
+        .modal-menu-inline { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .modal-menu-inline span { font-size: 0.8rem; color: var(--charcoal); background: var(--cream); padding: 0.3rem 0.6rem; border-radius: 2px; }
+        .modal-why-footer { background: var(--cream); padding: 2.5rem 3rem; }
+        .modal-why-title { font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+        .modal-why-body { font-family: 'Playfair Display', serif; font-size: 1rem; line-height: 1.7; color: var(--charcoal); margin-bottom: 1.5rem; }
+        .modal-why-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem; }
+        .modal-why-list li { font-size: 0.8rem; color: var(--muted); padding-left: 1rem; position: relative; }
+        .modal-why-list li::before { content: ''; position: absolute; left: 0; top: 0.5em; width: 4px; height: 4px; background: var(--gold); border-radius: 50%; }
+        .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        @media (max-width: 1024px) {
+            nav { padding: 1.5rem 2rem; } .nav-links { display: none; }
+            .brand-card { grid-template-columns: 1fr; min-height: auto; }
+            .brand-card:nth-child(even) { direction: ltr; }
+            .brand-visual { min-height: 50vh; }
+            .brand-content { padding: 3rem 2rem; }
+            .stats-section { grid-template-columns: repeat(2, 1fr); padding: 4rem 2rem; }
+            footer { flex-direction: column; text-align: center; }
+            .modal-header, .modal-body, .modal-why-footer { padding-left: 2rem; padding-right: 2rem; }
+            .modal-meta, .modal-why-list { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) { .stats-section { grid-template-columns: 1fr; } .hero-title { font-size: 3rem; } }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+    <nav>
+        <div class="logo">Alpha Holdings</div>
+        <ul class="nav-links">
+            <li><a href="#brands">Brands</a></li>
+            <li><a href="#philosophy">Philosophy</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <p class="hero-eyebrow">A Portfolio of Tomorrow's Icons</p>
+            <h1 class="hero-title">Alpha<span>Holdings</span></h1>
+            <p class="hero-subtitle">Curating exceptional brands that define how the next generation lives, eats, and expresses themselves.</p>
+        </div>
+        <div class="scroll-indicator"><span>Discover</span><div class="scroll-line"></div></div>
+    </section>
+
+    <section class="brands-section" id="brands">
+        <div class="brands-header reveal">
+            <h2>The Portfolio</h2>
+            <p>Twelve visionary brands united by a commitment to excellence and an unwavering belief in what's next.</p>
+        </div>
+
+        <div class="brand-card brand-stardust" data-brand="stardust" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">STARDUST</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">01</span>
+                <h3 class="brand-name">Stardust</h3>
+                <p class="brand-tagline">Cosmic wellness in every sip</p>
+                <p class="brand-description">A prebiotic soda that turns gut health into a daily ritual—sparkling, functional, and genuinely delicious.</p>
+                <span class="brand-category">Wellness Beverages</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-still" data-brand="still" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">STILL</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">02</span>
+                <h3 class="brand-name">STILL</h3>
+                <p class="brand-tagline">Find your freeze</p>
+                <p class="brand-description">A modern recovery sanctuary—cold therapy, breath, and reset rituals in a space built for calm.</p>
+                <span class="brand-category">Wellness & Recovery</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-lowkey" data-brand="lowkey" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">LOWKEY</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">03</span>
+                <h3 class="brand-name">Lowkey</h3>
+                <p class="brand-tagline">Effortlessly authentic</p>
+                <p class="brand-description">Understated pieces that let personality lead—quiet confidence, not loud logos.</p>
+                <span class="brand-category">Teen Fashion</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-icone" data-brand="icone" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">ICÔNE</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">04</span>
+                <h3 class="brand-name">Icône</h3>
+                <p class="brand-tagline">Timeless by design</p>
+                <p class="brand-description">Designer fashion engineered like heirlooms—pieces that stay relevant for decades.</p>
+                <span class="brand-category">Designer Fashion</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-2fast" data-brand="2fast" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">2FAST</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">05</span>
+                <h3 class="brand-name">2Fast</h3>
+                <p class="brand-tagline">Speed without sacrifice</p>
+                <p class="brand-description">Fast food that actually respects your body—chef-crafted, clean, and quick.</p>
+                <span class="brand-category">Healthy Fast Food</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-kazuaya" data-brand="kazuaya" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">和屋</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">06</span>
+                <h3 class="brand-name">Kazuaya</h3>
+                <p class="brand-tagline">Tradition meets transcendence</p>
+                <p class="brand-description">An omakase experience where tradition meets innovation—precision, care, and storytelling in every course.</p>
+                <span class="brand-category">Japanese Fine Dining</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-offduty" data-brand="offduty" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">OFFDUTY</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">07</span>
+                <h3 class="brand-name">offduty</h3>
+                <p class="brand-tagline">Rest is productive</p>
+                <p class="brand-description">Loungewear that treats rest like a power move—soft, structured, made to live in.</p>
+                <span class="brand-category">Sleepwear & Loungewear</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-imbusyskin" data-brand="imbusyskin" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">IMBUSY</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">08</span>
+                <h3 class="brand-name">imbusy Skin</h3>
+                <p class="brand-tagline">Glow on the go</p>
+                <p class="brand-description">Clean, effective skincare for teen skin—simple routines that work and don't overwhelm.</p>
+                <span class="brand-category">Teen Skincare</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-toasted" data-brand="toasted" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">TOASTED</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">09</span>
+                <h3 class="brand-name">Toasted</h3>
+                <p class="brand-tagline">The art of the perfect morning</p>
+                <p class="brand-description">The avocado café, perfected—breakfast as a daily ritual with elevated comfort and great coffee.</p>
+                <span class="brand-category">Avocado Café</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-crumb" data-brand="crumb" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">CRUMB</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">10</span>
+                <h3 class="brand-name">Crumb</h3>
+                <p class="brand-tagline">Indulgence, perfected</p>
+                <p class="brand-description">Rocky road cookies turned iconic—nostalgia upgraded into a craveable, collectible treat.</p>
+                <span class="brand-category">Cookie Concept</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-revise" data-brand="revise" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">REVISE</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">11</span>
+                <h3 class="brand-name">Revise</h3>
+                <p class="brand-tagline">Rewritten in gold</p>
+                <p class="brand-description">Jewelry as reinvention—timeless pieces with modern edge, made to mark chapters and milestones.</p>
+                <span class="brand-category">Jewelry</span>
+            </div>
+        </div>
+
+        <div class="brand-card brand-alphavogue" data-brand="alphavogue" role="button" tabindex="0">
+            <div class="brand-visual"><div class="brand-icon">ALPHA VOGUE</div></div>
+            <div class="brand-content reveal">
+                <span class="brand-number">12</span>
+                <h3 class="brand-name">Alpha Vogue</h3>
+                <p class="brand-tagline">A Gen Alpha & Teen magazine for the future</p>
+                <p class="brand-description">A culture-and-education magazine built for Gen Alpha and teens—where trends meet curiosity, and confidence meets learning.</p>
+                <span class="brand-category">Youth Media & Culture</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="stat-item reveal"><div class="stat-number">12</div><div class="stat-label">Alpha Brands</div></div>
+        <div class="stat-item reveal"><div class="stat-number">9</div><div class="stat-label">Industries</div></div>
+        <div class="stat-item reveal"><div class="stat-number">1</div><div class="stat-label">Vision</div></div>
+        <div class="stat-item reveal"><div class="stat-number">∞</div><div class="stat-label">Possibilities</div></div>
+    </section>
+
+    <section class="philosophy-section" id="philosophy">
+        <div class="philosophy-content reveal">
+            <p class="philosophy-quote">"We don't just invest in brands. We cultivate <span>cultural movements</span> that shape how the next generation experiences the world."</p>
+            <p class="philosophy-author">— The Alpha Holdings Philosophy</p>
+        </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+        <div class="contact-content reveal">
+            <h2>Let's Build <span>Together</span></h2>
+            <p>Inquiries for partnerships, press, and opportunities</p>
+            <div class="contact-buttons">
+                <a href="mailto:hello@alphaholdings.com" class="contact-email">Get In Touch</a>
+                <a href="mailto:investors@alphaholdings.com" class="contact-email">Investor Relations</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-logo">Alpha Holdings</div>
+        <div class="footer-links">
+            <a href="#brands">Brands</a>
+            <a href="#philosophy">Philosophy</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <div class="footer-copyright">© 2025 Alpha Holdings. All rights reserved.</div>
+    </footer>
+
+    <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+        <div class="modal" id="modal">
+            <button class="modal-close" aria-label="Close modal"></button>
+            <div class="modal-header">
+                <h2 class="modal-brand-name" id="modalTitle"></h2>
+                <p class="modal-tagline" id="modalTagline"></p>
+            </div>
+            <div class="modal-body">
+                <p class="modal-snapshot" id="modalSnapshot"></p>
+                <div class="modal-section">
+                    <h3 class="modal-section-title">What It Is</h3>
+                    <p class="modal-section-content" id="modalWhatItIs"></p>
+                </div>
+                <div class="modal-section">
+                    <h3 class="modal-section-title">Why We Built It</h3>
+                    <p class="modal-section-content" id="modalWhyWeBuiltIt"></p>
+                </div>
+                <div class="modal-meta">
+                    <div class="modal-meta-item">
+                        <p class="modal-meta-label">Signature World</p>
+                        <p class="modal-meta-value" id="modalSignatureWorld"></p>
+                    </div>
+                    <div class="modal-meta-item">
+                        <p class="modal-meta-label">Best For</p>
+                        <p class="modal-meta-value" id="modalBestFor"></p>
+                    </div>
+                </div>
+                <button class="modal-cta" id="modalCta"></button>
+                <div class="modal-menu" id="modalMenu" style="display: none;"></div>
+            </div>
+            <div class="modal-why-footer">
+                <h4 class="modal-why-title">Our Why (Alpha Holdings)</h4>
+                <p class="modal-why-body">"We build brands that feel like culture—designed for how the next generation lives, eats, recovers, and expresses identity. We obsess over craft, community, and longevity: modern rituals that earn a permanent place in everyday life."</p>
+                <ul class="modal-why-list">
+                    <li>Iconic design + clear point of view</li>
+                    <li>Wellness and performance without preachiness</li>
+                    <li>Premium experiences that scale into communities</li>
+                    <li>Brands that grow with their audience (not out of them)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const brandData = {
+            stardust: { name: "Stardust", tagline: "Cosmic wellness in every sip.", snapshot: "A prebiotic soda that turns gut health into a daily ritual—sparkling, functional, and genuinely delicious.", whatItIs: "A modern soda line with benefits (prebiotic-first), built for people who want 'feel good' without losing taste or vibe.", whyWeBuiltIt: "The next generation is done with fake wellness. Stardust makes functional ingredients feel effortless, fun, and repeatable.", signatureWorld: "Cosmic wellness.", bestFor: "Health-conscious teens + young adults, creators, busy families.", cta: "Explore flavors" },
+            lowkey: { name: "Lowkey", tagline: "Effortlessly authentic.", snapshot: "Understated pieces that let personality lead—quiet confidence, not loud logos.", whatItIs: "Teen everydaywear with clean silhouettes, comfort, and just-right details—the uniform that still feels personal.", whyWeBuiltIt: "Teens deserve fashion that doesn't try too hard—style that supports identity instead of performing for attention.", signatureWorld: "Quiet confidence.", bestFor: "Teens who want cool without costume.", cta: "Shop drops" },
+            icone: { name: "Icône", tagline: "Timeless by design.", snapshot: "Designer fashion engineered like heirlooms—pieces that stay relevant for decades.", whatItIs: "Elevated essentials + statement pieces with craftsmanship, restraint, and longevity.", whyWeBuiltIt: "True luxury isn't trend-chasing—it's construction, material integrity, and a point of view that ages beautifully.", signatureWorld: "Future heirlooms.", bestFor: "Style leaders, collectors, capsule-wardrobe builders.", cta: "View collections" },
+            "2fast": { name: "2Fast", tagline: "Speed without sacrifice.", snapshot: "Fast food that actually respects your body—chef-crafted, clean, and quick.", whatItIs: "A modern quick-service concept: high-protein, nutrient-forward meals that move at real-life speed.", whyWeBuiltIt: "People are busy—health shouldn't require extra time, extra money, or extra mental effort.", signatureWorld: "Fast, clean, craveable.", bestFor: "Students, athletes, families, professionals.", cta: "See the menu", menu: { burgers: { title: "Burgers", subtitle: "Served on brioche buns", items: ["⭐ Garlic Grill — Grilled chicken, tomato, lettuce, garlic butter", "Lamb Love — Grilled lamb, lettuce, tomato, teriyaki", "Beef Bring — Grilled steak, tomato, lettuce, garlic butter", "Salmon Slither — Grilled salmon, lettuce, tomato, teriyaki"] }, bowls: { title: "Bowls", items: ["Salmon Slither Bowl — Salmon sashimi, sticky rice, edamame, avocado, soy", "Chicken Chick Bowl — Grilled chicken, sticky rice, lettuce, avocado, soy–teriyaki", "Arabian Night Bowl — Egyptian lentil rice, roast chicken, spiced lentil broth, cucumber", "Garden Glow Bowl — Roasted vegetables, chickpeas, herbed rice, cucumber, lemon tahini"] }, fries: { title: "Fries", items: ["Sweet Potato Truffle Fries — Sweet potato fries, truffle oil, sea salt", "Sweet Potato Fries — Sweet potato fries, lightly seasoned", "Truffle Fries — Crisp fries, truffle oil, sea salt"] }, drinks: { title: "Drinks", items: ["Passionate — Mango, passion fruit", "Straw — Strawberry, mango", "Watermelon & Strawberry — Watermelon, strawberry", "Water"] }, sides: { title: "Sides", items: ["Garlic Broccoli", "Garlic Pasta", "Edamame", "Fruit Bowl", "Salad"] }, sauces: { title: "Sauces", items: ["Teriyaki", "Garlic Butter", "Soy"] } } },
+            kazuaya: { name: "Kazuaya", tagline: "Tradition meets transcendence.", snapshot: "An omakase experience where tradition meets innovation—precision, care, and storytelling in every course.", whatItIs: "Japanese fine dining that feels intimate, elevated, and transportive—an event, not just a meal.", whyWeBuiltIt: "In a loud world, excellence is quiet. Kazuaya is about craft, respect, and presence—luxury as attention.", signatureWorld: "Omakase as art.", bestFor: "Celebrations, food lovers, cultural experiences.", cta: "Reserve" },
+            offduty: { name: "offduty", tagline: "Rest is productive.", snapshot: "Loungewear that treats rest like a power move—soft, structured, made to live in.", whatItIs: "Premium pajamas and chill sets designed for comfort, confidence, and everyday wear (not just bedtime).", whyWeBuiltIt: "Rest is part of performance. offduty makes downtime feel intentional and elevated.", signatureWorld: "Downtime, upgraded.", bestFor: "Teens + adults, travelers, homebodies, gift buyers.", cta: "Shop sets" },
+            imbusyskin: { name: "imbusy Skin", tagline: "Glow on the go.", snapshot: "Clean, effective skincare for teen skin—simple routines that work and don't overwhelm.", whatItIs: "A skincare line made for real teen needs: clarity, barrier care, confidence—without complicated steps.", whyWeBuiltIt: "Teen skincare became noisy and stressful. imbusy Skin brings it back to calm, clear, consistent.", signatureWorld: "Simple, steady, clear.", bestFor: "Teens, first-time skincare users, parents shopping smart.", cta: "Build your routine" },
+            toasted: { name: "Toasted", tagline: "The art of the perfect morning.", snapshot: "The avocado café, perfected—breakfast as a daily ritual with elevated comfort and great coffee.", whatItIs: "A café concept built around morning favorites done beautifully: avo on sourdough, eggs, salmon, chai/coffee.", whyWeBuiltIt: "Mornings set the tone. Toasted makes the start of the day feel intentional, social, and delicious.", signatureWorld: "Morning ritual.", bestFor: "Students, creators, brunch people, remote workers.", cta: "See locations" },
+            crumb: { name: "Crumb", tagline: "Indulgence, perfected.", snapshot: "Rocky road cookies turned iconic—nostalgia upgraded into a craveable, collectible treat.", whatItIs: "A cookie brand built around texture and memory: marshmallow, chocolate, crunch—engineered for obsession.", whyWeBuiltIt: "Joy matters. Crumb is designed to be the treat people share, gift, and come back for.", signatureWorld: "Bite-size nostalgia.", bestFor: "Dessert lovers, gifting, pop-ups, celebrations.", cta: "Order" },
+            still: { name: "STILL", tagline: "Find your freeze.", snapshot: "A modern recovery sanctuary—cold therapy, breath, and reset rituals in a space built for calm.", whatItIs: "A wellness studio centered on recovery culture with design-forward atmosphere and science-backed rituals.", whyWeBuiltIt: "The next generation takes recovery seriously. STILL makes resilience a lifestyle—beautiful, accessible, repeatable.", signatureWorld: "Calm strength.", bestFor: "Athletes, high-performers, wellness communities.", cta: "Book a session" },
+            revise: { name: "Revise", tagline: "Rewritten in gold.", snapshot: "Jewelry as reinvention—timeless pieces with modern edge, made to mark chapters and milestones.", whatItIs: "Fine + fashion jewelry blending delicacy with statement—everyday staples and power pieces.", whyWeBuiltIt: "Style is identity over time. Revise celebrates evolution—becoming, upgrading, rewriting your story.", signatureWorld: "Milestones, worn.", bestFor: "Gifting, self-expression, milestone moments.", cta: "Shop jewelry" },
+            alphavogue: { name: "Alpha Vogue", tagline: "A Gen Alpha & Teen magazine for the future.", snapshot: "A culture-and-education magazine built for Gen Alpha and teens—where trends meet curiosity, and confidence meets learning.", whatItIs: "A next-gen magazine platform featuring youth-led stories across style, school, sport, wellness, and what's next—made to be smart, fun, and genuinely empowering.", whyWeBuiltIt: "Young people deserve media that takes them seriously. Alpha Vogue exists to elevate voices, spark ambition, and make learning feel like culture.", signatureWorld: "Youth-led. Future-focused.", bestFor: "Gen Alpha, teens, parents, educators, and brands building with youth.", cta: "Read the latest" }
+        };
+
+        const cursor = document.querySelector('.cursor');
+        const logo = document.querySelector('.logo');
+        const hero = document.querySelector('.hero');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalClose = document.querySelector('.modal-close');
+        const brandCards = document.querySelectorAll('.brand-card');
+
+        document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX - 10 + 'px'; cursor.style.top = e.clientY - 10 + 'px'; });
+        document.querySelectorAll('a, button, .brand-card').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        const toggleLogo = () => { logo.classList.toggle('visible', window.scrollY > hero.offsetHeight - 100); };
+        window.addEventListener('scroll', toggleLogo);
+        toggleLogo();
+
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => { reveals.forEach(el => { if (el.getBoundingClientRect().top < window.innerHeight - 150) el.classList.add('active'); }); };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) { e.preventDefault(); document.querySelector(this.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' }); });
+        });
+
+        function openModal(brandKey) {
+            const data = brandData[brandKey];
+            if (!data) return;
+            document.getElementById('modalTitle').textContent = data.name;
+            document.getElementById('modalTagline').textContent = data.tagline;
+            document.getElementById('modalSnapshot').textContent = data.snapshot;
+            document.getElementById('modalWhatItIs').textContent = data.whatItIs;
+            document.getElementById('modalWhyWeBuiltIt').textContent = data.whyWeBuiltIt;
+            document.getElementById('modalSignatureWorld').textContent = data.signatureWorld;
+            document.getElementById('modalBestFor').textContent = data.bestFor;
+            document.getElementById('modalCta').textContent = data.cta;
+            
+            const menuEl = document.getElementById('modalMenu');
+            if (data.menu) {
+                let menuHtml = '';
+                const sections = ['burgers', 'bowls', 'fries', 'drinks', 'sides', 'sauces'];
+                sections.forEach(key => {
+                    const section = data.menu[key];
+                    if (section) {
+                        menuHtml += '<div class="modal-menu-section">';
+                        menuHtml += '<p class="modal-menu-title">' + section.title + '</p>';
+                        if (section.subtitle) menuHtml += '<p class="modal-menu-subtitle">' + section.subtitle + '</p>';
+                        if (key === 'sides' || key === 'sauces') {
+                            menuHtml += '<div class="modal-menu-inline">';
+                            section.items.forEach(item => { menuHtml += '<span>' + item + '</span>'; });
+                            menuHtml += '</div>';
+                        } else {
+                            menuHtml += '<ul class="modal-menu-items">';
+                            section.items.forEach(item => { menuHtml += '<li>' + item + '</li>'; });
+                            menuHtml += '</ul>';
+                        }
+                        menuHtml += '</div>';
+                    }
+                });
+                menuEl.innerHTML = menuHtml;
+                menuEl.style.display = 'block';
+            } else {
+                menuEl.style.display = 'none';
+                menuEl.innerHTML = '';
+            }
+            
+            modalOverlay.classList.add('active');
+            document.body.classList.add('modal-open');
+            setTimeout(() => modalClose.focus(), 100);
+        }
+
+        function closeModal() { modalOverlay.classList.remove('active'); document.body.classList.remove('modal-open'); }
+
+        brandCards.forEach(card => {
+            card.addEventListener('click', () => openModal(card.dataset.brand));
+            card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.dataset.brand); } });
+        });
+
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal(); });
+    </script>
+</body>
+</html>
